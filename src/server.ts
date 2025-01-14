@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import userRoutes from './routes/userRoutes';
 
 const app: Application = express();
 const PORT = 2333;
@@ -8,6 +9,9 @@ const PORT = 2333;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
+// Routes
+app.use('/users', userRoutes);
 
 // Example Route
 app.get('/', (req: Request, res: Response) => {
