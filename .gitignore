@@ -39,3 +39,5 @@ temp/
 # Firebase service account key
 config/firebase-service-account.json
 node_modules/
+src/utils/serviceAccountKey.json
+
