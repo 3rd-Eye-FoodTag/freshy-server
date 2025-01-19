@@ -60,5 +60,40 @@ router.put('/updateUserInfo', async (req: Request, res: Response): Promise<any> 
   }
 });
 
+router.put('/updateWeeklyWrapTime',  async (req: Request, res: Response): Promise<any>  => {
+  try {
+      // Extract data from request body
+      const { uid, weeklyWrapTime } = req.body;
+
+      // Validate input
+      if (!uid || !weeklyWrapTime || !weeklyWrapTime.Days || !weeklyWrapTime.Times) {
+          return res.status(400).json({ error: 'Invalid input. uid and weeklyWrapTime (Days, Times) are required.' });
+      }
+
+      // Reference to the user document
+      const userDocRef = db.collection('Users').doc(uid);
+
+      // Check if user exists
+      const userDoc = await userDocRef.get();
+      if (!userDoc.exists) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Update the weeklyWrapTime field
+      await userDocRef.update({
+          'setting.weeklyWrapTime': {
+              Days: weeklyWrapTime.Days,
+              Times: weeklyWrapTime.Times,
+          },
+      });
+
+      res.status(200).json({ message: 'Weekly wrap time updated successfully' });
+  } catch (error) {
+      console.error('Error updating weekly wrap time:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 
 export default router;
