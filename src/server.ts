@@ -7,10 +7,9 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 import {getStorage, ref, getDownloadURL} from 'firebase/storage';
 import { firebaseApp } from './firebase/config'; 
-
-import * as admin from 'firebase-admin';
-
-
+import dotenv from 'dotenv';
+dotenv.config();
+// console.log(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 const app: Application = express();
 const PORT = process.env.PORT || 2333;
 
