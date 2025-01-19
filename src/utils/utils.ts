@@ -3,6 +3,56 @@ import { COLLECTION_WIKI, UserInfo } from "./constant";
 
 import { collection, addDoc } from 'firebase/firestore';
 
+export const calculateDaysDifference = (
+  expirationDate: string,
+  createdAt?: string,
+): number => {
+  const expDate = new Date(expirationDate);
+  let createdDate: Date;
+
+  if (createdAt) {
+    createdDate = new Date(createdAt);
+  } else {
+    createdDate = new Date();
+  }
+
+  createdDate.setHours(0, 0, 0, 0);
+
+  const differenceInMilliseconds = expDate.getTime() - createdDate.getTime();
+
+  const millisecondsInADay = 24 * 60 * 60 * 1000;
+  const differenceInDays = Math.floor(
+    differenceInMilliseconds / millisecondsInADay,
+  );
+
+  return differenceInDays > 0 ? differenceInDays : 0;
+};
+
+export const calculateExpiredFoods = async (userId: string): Promise<number> => {
+  try {
+    const userInventoryRef = db.collection('Inventory').doc(userId);
+    const inventorySnapshot = await userInventoryRef.get();
+
+    if (!inventorySnapshot.exists) {
+      throw new Error(`Inventory not found for user ID: ${userId}`);
+    }
+
+    const inventoryData = inventorySnapshot.data();
+    const items = inventoryData?.data || []; // Assuming `items` contains the array of foods
+
+    // // Count expired foods
+    const expiredCount = items.reduce((count: number, item: any) => {
+      const daysLeft = calculateDaysDifference(item.expiryDate);
+      return daysLeft < 1 ? count + 1 : count; // Increment count if expired
+    }, 0);
+
+    return expiredCount
+  } catch (error) {
+    console.error('Error calculating expired foods:', error);
+    throw error;
+  }
+};
+
 // Add multiple food items to Firebase
 export async function addFoodItems(items: any[]): Promise<any[]> {
   try {
