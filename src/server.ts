@@ -12,7 +12,7 @@ import * as admin from 'firebase-admin';
 
 
 const app: Application = express();
-const PORT = 2333;
+const PORT = process.env.PORT || 2333;
 
 // Middleware
 app.use(cors());
