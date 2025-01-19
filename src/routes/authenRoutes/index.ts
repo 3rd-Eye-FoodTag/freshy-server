@@ -1,11 +1,16 @@
 import { Router, Request, Response } from 'express';
 import { registerAccount, handleLogin } from '../../api';
+import { auth }from '../../firebase/config'
+import { db } from '../../firebase/config';
 
 const router = Router();
 
-// Login route
+//because the restful api won't update the onAuthStateChange at client side
+//we would use react-native-firebase-for-auth, may create own onAuthStateChange in future
+// Log Out route
 router.post('/login', async (req: Request, res: Response): Promise<any> => {
   try {
+    console.log("a user is trying to logining")
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -52,5 +57,43 @@ router.post('/register', async (req: Request, res: Response): Promise<any> => {
     });
   }
 });
+
+//register tell more information 
+
+// Route to handle user registration and Firestore data setup
+router.post('/createUserDetailsInfo', async (req: Request, res: Response): Promise<any>  => {
+  const { email, name, age, zipCode, gender, uid } = req.body;
+  try {
+    console.log({email, name, age, zipCode, gender, uid})
+    await db.collection('Users').doc(uid).set({
+      name,
+      age,
+      zipCode,
+      gender,
+      email: email,
+      uid: uid,
+      createdAt: new Date(),
+      // phoneNubmer: null
+    });
+
+    // Add an empty inventory for the user in Firestore
+    await db.collection('Inventory').doc(uid).set({
+      data: [],
+    });
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        uid: uid,
+        email: email,
+        name,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error registering user:', error.message);
+    res.status(400).json({ error: error.message });
+  }
+});
+
 
 export default router;

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {
     signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
+    signOut,
 } from 'firebase/auth';
 import {auth} from './firebase/config'
 
@@ -25,8 +25,13 @@ export const authenticate = async (
       password: password,
       returnSecureToken: true,
     });
-  
-    return {...response.data, status: response.status};
+
+    const idToken = response.data.idToken;
+
+    // Optional: Verify the token using the Admin SDK (if needed)
+    const decodedToken = await auth.verifyIdToken(idToken);
+
+    return {...response.data, status: response.status, decodedToken};
 };
   
 export const handleLogin = ({email, password}: AuthenProps) => {
@@ -36,3 +41,7 @@ export const handleLogin = ({email, password}: AuthenProps) => {
 export const registerAccount = async ({email, password}: AuthenProps) => {
     return authenticate('signUp', email, password);
 };
+
+// export const handleLogOut = async (auth: Auth) => {
+//     return await signOut(auth);
+// }
