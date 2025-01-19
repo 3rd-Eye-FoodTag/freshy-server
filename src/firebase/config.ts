@@ -3,6 +3,9 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 import {getStorage, ref, getDownloadURL} from 'firebase/storage';
 
 import * as admin from 'firebase-admin';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const firebaseConfig = {
     apiKey: "AIzaSyBYyGwCHKviq3olXksJWi4c7xSR_GVGoMg",
@@ -14,12 +17,18 @@ const firebaseConfig = {
     measurementId: "G-PG8JHCPF55"
 };
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const serviceAccount = require('../utils/serviceAccountKey.json');
+const serviceAccountBase64: string | undefined = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+if (!serviceAccountBase64) {
+    throw new Error("Missing FIREBASE_SERVICE_ACCOUNT_KEY environment variable");
+}
+
+const serviceAccount = JSON.parse(
+    Buffer.from(serviceAccountBase64, 'base64').toString('utf-8')
+);
 
 export const firebaseApp = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: 'freshfoodv1.appspot.com',
+  storageBucket: "freshfoodv1.appspot.com",
 });
 
 const app = initializeApp(firebaseConfig)
